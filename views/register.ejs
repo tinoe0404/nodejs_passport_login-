@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .register-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-user-plus fa-3x register-icon mb-3"></i>
+                            <h1 class="h3 mb-3 fw-bold">Create Account</h1>
+                            <p class="text-muted">Join us today and get started</p>
+                        </div>
+                        
+                        <div id="messages">
+                            <% if (success_msg) { %>
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <%= success_msg %>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            <% } %>
+                            
+                            <% if (error_msg) { %>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <%= error_msg %>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            <% } %>
+                            
+                            <% if (errors) { %>
+                                <% errors.forEach(error => { %>
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <%= error.msg %>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                        
+                        <form id="registerForm" action="/users/register" method="POST" novalidate>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <div class="form-group mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input 
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    class="form-control <%= typeof errors != 'undefined' && errors.find(e => e.param === 'name') ? 'is-invalid' : '' %>"
+                                    placeholder="Enter your full name"
+                                    value="<%= typeof name != 'undefined' ? name : '' %>"
+                                    required
+                                >
+                                <div class="invalid-feedback">
+                                    Please provide a valid name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input 
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    class="form-control <%= typeof errors != 'undefined' && errors.find(e => e.param === 'email') ? 'is-invalid' : '' %>"
+                                    placeholder="Enter your email"
+                                    value="<%= typeof email != 'undefined' ? email : '' %>"
+                                    required
+                                >
+                                <div class="invalid-feedback">
+                                    Please provide a valid email address.
+                                </div>
+                                <div class="valid-feedback">
+                                    Valid email format!
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="position-relative">
+                                    <input 
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        class="form-control <%= typeof errors != 'undefined' && errors.find(e => e.param === 'password') ? 'is-invalid' : '' %>"
+                                        placeholder="Create a password"
+                                        minlength="6"
+                                        required
+                                    >
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y" id="togglePassword">
+                                        <i class="fas fa-eye" id="eyeIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Password must be at least 6 characters long.
+                                </div>
+                                <div class="valid-feedback">
+                                    Strong password!
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <div class="position-relative">
+                                    <input 
+                                        type="password"
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        class="form-control <%= typeof errors != 'undefined' && errors.find(e => e.param === 'confirmPassword') ? 'is-invalid' : '' %>"
+                                        placeholder="Confirm your password"
+                                        required
+                                    >
+                                    <span class="position-absolute end-0 top-50 translate-middle-y me-3 text-success" id="passwordMatchIcon" style="display: none;">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Passwords do not match.
+                                </div>
+                                <div class="valid-feedback">
+                                    Passwords match!
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input <%= typeof errors != 'undefined' && errors.find(e => e.param === 'terms') ? 'is-invalid' : '' %>" 
+                                       type="checkbox" 
+                                       id="terms" 
+                                       name="terms"
+                                       <%= typeof terms != 'undefined' && terms ? 'checked' : '' %>
+                                       required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                                </label>
+                                <div class="invalid-feedback">
+                                    You must agree to the terms and conditions.
+                                </div>
+                                <div class="valid-feedback">
+                                    Thank you for agreeing to our terms!
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-user-plus me-2"></i>
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="text-center mt-4">
+                            <p class="mb-0">Already have an account? <a href="/users/login" class="text-decoration-none fw-bold">Sign In</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password visibility toggle
+            document.getElementById('togglePassword').addEventListener('click', function() {
+                const password = document.getElementById('password');
+                const eyeIcon = document.getElementById('eyeIcon');
+                
+                if (password.type === 'password') {
+                    password.type = 'text';
+                    eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    password.type = 'password';
+                    eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+
+            // Real-time validations
+            document.getElementById('name').addEventListener('input', validateName);
+            document.getElementById('email').addEventListener('input', validateEmail);
+            document.getElementById('password').addEventListener('input', validatePassword);
+            document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
+            document.getElementById('terms').addEventListener('change', validateTerms);
+
+            // Form submission
+            document.getElementById('registerForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Validate all fields
+                const isNameValid = validateName();
+                const isEmailValid = validateEmail();
+                const isPasswordValid = validatePassword();
+                const isConfirmValid = validateConfirmPassword();
+                const isTermsValid = validateTerms();
+                
+                const isValid = isNameValid && isEmailValid && isPasswordValid && isConfirmValid && isTermsValid;
+                
+                if (isValid) {
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                    
+                    // Submit the form
+                    this.submit();
+                }
+            });
+
+            function validateName() {
+                const nameInput = document.getElementById('name');
+                const isValid = nameInput.value.trim().length >= 2;
+                
+                nameInput.classList.remove('is-valid', 'is-invalid');
+                nameInput.classList.add(isValid ? 'is-valid' : 'is-invalid');
+                
+                return isValid;
+            }
+
+            function validateEmail() {
+                const emailInput = document.getElementById('email');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = emailRegex.test(emailInput.value.trim());
+                
+                emailInput.classList.remove('is-valid', 'is-invalid');
+                emailInput.classList.add(isValid ? 'is-valid' : 'is-invalid');
+                
+                return isValid;
+            }
+
+            function validatePassword() {
+                const passwordInput = document.getElementById('password');
+                const isValid = passwordInput.value.length >= 6;
+                
+                passwordInput.classList.remove('is-valid', 'is-invalid');
+                passwordInput.classList.add(isValid ? 'is-valid' : 'is-invalid');
+                
+                // Also validate confirmation when password changes
+                if (document.getElementById('confirmPassword').value.length > 0) {
+                    validateConfirmPassword();
+                }
+                
+                return isValid;
+            }
+
+            function validateConfirmPassword() {
+                const confirmInput = document.getElementById('confirmPassword');
+                const password = document.getElementById('password').value;
+                const confirmPassword = confirmInput.value;
+                const isValid = password === confirmPassword && confirmPassword.length > 0;
+                
+                confirmInput.classList.remove('is-valid', 'is-invalid');
+                confirmInput.classList.add(isValid ? 'is-valid' : 'is-invalid');
+                
+                // Toggle check icon visibility
+                const icon = document.getElementById('passwordMatchIcon');
+                icon.style.display = isValid ? 'block' : 'none';
+                
+                return isValid;
+            }
+
+            function validateTerms() {
+                const termsInput = document.getElementById('terms');
+                const isValid = termsInput.checked;
+                
+                termsInput.classList.remove('is-valid', 'is-invalid');
+                termsInput.classList.add(isValid ? 'is-valid' : 'is-invalid');
+                
+                return isValid;
+            }
+        });
+    </script>
+</body>
+</html>
